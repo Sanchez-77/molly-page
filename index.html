@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>团子 — 你的 AI 桌面伙伴</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #FFF8F5;
+  --bg-warm: #FFF0EB;
+  --text-primary: #4A3040;
+  --text-secondary: #8B6B7B;
+  --text-muted: #C4A0B0;
+  --accent: #FF6B8A;
+  --accent-hover: #E85A78;
+  --accent-light: rgba(255, 107, 138, 0.08);
+  --card-dark: rgba(74, 48, 64, 0.9);
+  --glass: rgba(255, 255, 255, 0.65);
+  --glass-bold: rgba(255, 255, 255, 0.8);
+  --glass-subtle: rgba(255, 255, 255, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-blur: blur(20px);
+  --glass-shadow: 0 4px 24px rgba(74, 48, 64, 0.06);
+  --glass-shadow-hover: 0 8px 32px rgba(74, 48, 64, 0.1);
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-pill: 100px;
+}
+
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 10000;
+}
+
+/* NAV */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 14px 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.35s, backdrop-filter 0.35s, box-shadow 0.35s;
+}
+.nav.scrolled {
+  background: rgba(255, 248, 245, 0.85);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 1px 12px rgba(74, 48, 64, 0.06);
+}
+.nav-inner {
+  width: 100%; max-width: 1324px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary); }
+.nav-logo-img { width: 36px; height: 36px; border-radius: 9px; object-fit: cover; border: 1.5px solid rgba(74,48,64,0.1); }
+.nav-brand span { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.02em; }
+.nav-right { display: flex; align-items: center; gap: 32px; }
+.nav-links { display: flex; gap: 28px; list-style: none; }
+.nav-links a { text-decoration: none; color: var(--text-secondary); font-weight: 500; font-size: 13.5px; transition: color 0.3s; }
+.nav-links a:hover { color: var(--text-primary); }
+.nav-cta {
+  display: inline-block; text-decoration: none; padding: 7px 20px;
+  background: var(--text-primary); color: var(--bg); border: none; border-radius: 100px;
+  font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s;
+}
+.nav-cta:hover { background: var(--accent); box-shadow: 0 4px 16px rgba(255,107,138,0.3); }
+
+/* HERO */
+.hero {
+  position: relative; width: 100%; height: 100vh; min-height: 700px;
+  background: linear-gradient(165deg, #FFF5F0 0%, #FFE8E0 35%, #FFD9D0 70%, #FFCEC4 100%);
+  overflow: hidden;
+}
+.hero-glow {
+  position: absolute; width: 700px; height: 700px; top: 45%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255,180,200,0.35) 0%, rgba(255,200,210,0.15) 35%, transparent 65%);
+  pointer-events: none; z-index: 3;
+}
+.hero-glow-accent {
+  position: absolute; width: 500px; height: 500px; top: -150px; right: -100px;
+  background: radial-gradient(circle, rgba(255,107,138,0.06) 0%, transparent 55%);
+  pointer-events: none;
+}
+.hero-mega-text, .hero-mega-text-fill {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%);
+  font-family: 'Outfit', sans-serif; font-weight: 900;
+  font-size: clamp(300px, 42vw, 800px); letter-spacing: -0.02em;
+  white-space: nowrap; user-select: none; pointer-events: none;
+  z-index: 2; opacity: 0; line-height: 0.85;
+}
+.hero-mega-text { color: transparent; -webkit-text-stroke: 1.5px rgba(74,48,64,0.06); }
+.hero-mega-text-fill { color: rgba(74,48,64,0.035); }
+
+.hero-media {
+  position: absolute; inset: 0; z-index: 4;
+  display: flex; align-items: flex-end; justify-content: center;
+  pointer-events: none;
+}
+.hero-canvas-wrap {
+  position: relative;
+  width: 100vw; max-width: 1500px; min-width: 500px;
+  aspect-ratio: 1;
+  margin-bottom: -5%;
+}
+.hero-canvas-wrap canvas { width: 100%; height: 100%; display: block; }
+.hero-shelf {
+  position: absolute;
+  bottom: -20%; left: -26%;
+  width: 158%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.hero-left {
+  position: absolute; left: 12%; bottom: 200px; z-index: 10;
+  opacity: 0; transform: translateY(24px);
+}
+.hero-left h1 { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: clamp(28px,3vw,42px); letter-spacing: -0.03em; line-height: 1.2; margin-bottom: 12px; }
+.hero-left h1 .accent-text { color: var(--accent); }
+.hero-left p { font-size: 15px; color: var(--text-secondary); max-width: 340px; line-height: 1.7; margin-bottom: 24px; }
+.hero-buttons { display: flex; gap: 12px; }
+.btn-primary {
+  display: inline-block; text-decoration: none; padding: 12px 28px;
+  background: var(--accent); color: white; border: none; border-radius: 100px;
+  font-weight: 600; font-size: 13.5px; cursor: pointer; transition: all 0.3s;
+  box-shadow: 0 4px 20px rgba(255,107,138,0.25);
+}
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,107,138,0.35); }
+.btn-ghost {
+  display: inline-block; text-decoration: none; padding: 12px 28px;
+  background: transparent; color: var(--text-primary);
+  border: 1.5px solid rgba(74,48,64,0.12); border-radius: 100px;
+  font-weight: 600; font-size: 13.5px; cursor: pointer; transition: all 0.3s;
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+.hero-cards {
+  position: absolute; bottom: 48px; left: 56px; right: 56px; z-index: 10;
+  display: flex; gap: 10px; align-items: center; justify-content: center;
+}
+.hcard {
+  border-radius: 100px; padding: 12px 22px;
+  transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+  opacity: 0; transform: translateY(28px);
+  background: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.9);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 20px rgba(74,48,64,0.08);
+  display: flex; align-items: center; gap: 12px; cursor: default;
+}
+.hcard:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(74,48,64,0.12); }
+.hcard-icon {
+  width: 34px; height: 34px; background: rgba(255,107,138,0.08);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.hcard-text strong { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 13.5px; display: block; }
+.hcard-text span { font-size: 11.5px; color: var(--text-muted); }
+
+.hero-dot { position: absolute; border-radius: 50%; pointer-events: none; }
+.dot-a { width: 7px; height: 7px; background: var(--accent); opacity: 0.25; top: 22%; left: 10%; z-index: 3; }
+.dot-b { width: 10px; height: 10px; background: rgba(255,180,200,0.5); top: 18%; right: 12%; z-index: 3; }
+.dot-c { width: 5px; height: 5px; background: var(--accent); opacity: 0.2; bottom: 35%; left: 18%; z-index: 3; }
+
+/* MARQUEE */
+.marquee-strip {
+  padding: 18px 0; background: var(--glass-subtle);
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border);
+  overflow: hidden; white-space: nowrap;
+}
+.marquee-track {
+  display: inline-flex; align-items: center; gap: 28px;
+  animation: marquee-scroll 25s linear infinite;
+  font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 14px; color: rgba(74,48,64,0.3);
+}
+.marquee-dot { width: 4px; height: 4px; background: rgba(74,48,64,0.15); border-radius: 50%; flex-shrink: 0; }
+@keyframes marquee-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* BENTO */
+.bento { padding: 100px 56px 80px; background: var(--bg); }
+.bento-inner { max-width: 1240px; margin: 0 auto; }
+.bento-header h2 { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: clamp(30px,3.5vw,46px); letter-spacing: -0.03em; line-height: 1.12; margin-bottom: 10px; }
+.bento-header h2 em { font-style: italic; color: var(--accent); }
+.bento-header .sdesc { font-size: 15px; color: var(--text-secondary); max-width: 460px; line-height: 1.7; margin-bottom: 44px; }
+.bento-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.bento-card {
+  border-radius: var(--radius-lg); padding: 30px;
+  transition: all 0.45s cubic-bezier(0.16,1,0.3,1);
+  position: relative; overflow: hidden;
+  background: var(--glass); border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow); color: var(--text-primary);
+}
+.bento-card:hover { transform: translateY(-4px); box-shadow: var(--glass-shadow-hover); }
+.bento-lg { grid-column: span 2; display: flex; gap: 24px; align-items: center; min-height: 200px; }
+.bento-card-content { flex: 1; }
+.bento-tall { grid-column: span 2; grid-row: span 2; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; min-height: 320px; }
+.bento-wide { grid-column: span 4; text-align: center; padding: 28px 40px; }
+.bento-sm { grid-column: span 1; }
+
+.bento-dark { background: #3D2030; border-color: rgba(255,255,255,0.08); color: #FFF0F3; }
+.bento-dark:hover { box-shadow: 0 16px 48px rgba(74,48,64,0.2); }
+.bento-accent { background: var(--accent); border-color: var(--accent); color: white; }
+.bento-accent:hover { box-shadow: 0 16px 48px rgba(255,107,138,0.3); }
+.bento-accent .anim-bubble { background: rgba(255,255,255,0.2); color: white; }
+.bento-warm { background: white; }
+.bento-glass { background: white; }
+.bento-mint { background: #FFF5F8; }
+.bento-peach { background: #FFF0EB; }
+
+.bento-big-number { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 64px; letter-spacing: -0.04em; line-height: 1; margin-bottom: 6px; }
+.bento-big-label { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 16px; color: var(--text-secondary); margin-bottom: 12px; }
+.bento-card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+.agent-pills { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.agent-pill { padding: 6px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.06); border-radius: 100px; font-size: 12px; font-weight: 500; color: rgba(255,240,243,0.6); transition: all 0.3s; }
+.agent-pill:hover { background: rgba(255,255,255,0.14); color: #FFF0F3; }
+.ap-more { background: rgba(255,107,138,0.2); border-color: rgba(255,107,138,0.25); color: var(--accent); }
+
+.bento-anim-number { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: 80px; letter-spacing: -0.04em; line-height: 1; color: white; }
+.bento-anim-label { font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 16px; opacity: 0.85; margin: 6px 0 20px; line-height: 1.3; color: white; }
+.bento-anim-preview { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.anim-bubble { padding: 6px 12px; background: rgba(74,48,64,0.05); border-radius: 100px; font-size: 12px; font-weight: 500; }
+
+.bento-sm-icon { font-size: 24px; margin-bottom: 14px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: rgba(255,107,138,0.08); }
+.bento-sm h3 { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 6px; }
+.bento-sm p { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+
+.bento-flow { display: flex; align-items: center; justify-content: center; gap: 20px; padding: 8px 0; }
+.flow-step { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.flow-icon { width: 52px; height: 52px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.flow-step-highlight .flow-icon { background: rgba(255,107,138,0.2); border-color: rgba(255,107,138,0.3); }
+.flow-text { font-size: 12px; color: rgba(255,240,243,0.5); font-weight: 500; }
+.flow-step-highlight .flow-text { color: var(--accent); font-weight: 600; }
+.flow-arrow { color: rgba(255,240,243,0.2); margin-bottom: 16px; }
+.bento-flow-label { font-size: 12px; color: rgba(255,240,243,0.3); margin-top: 12px; }
+
+/* STATS */
+.stat-callout { padding: 64px 56px; }
+.stat-callout-inner { max-width: 1000px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+.stat-callout-item { text-align: center; flex: 1; }
+.stat-callout-num { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: clamp(40px,5vw,64px); letter-spacing: -0.04em; line-height: 1; color: var(--text-primary); }
+.stat-callout-num::after { content: '+'; color: var(--accent); font-size: 0.6em; }
+.stat-callout-special::after { content: ''; }
+.stat-callout-label { font-size: 14px; color: var(--text-muted); font-weight: 500; margin-top: 6px; }
+.stat-callout-divider { width: 1px; height: 48px; background: rgba(74,48,64,0.08); }
+
+/* ANIMATIONS */
+.anims { padding: 100px 56px 80px; background: var(--bg); position: relative; overflow: hidden; }
+.anims-inner { max-width: 1240px; margin: 0 auto; position: relative; }
+.anims-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family: 'Outfit', sans-serif; font-weight: 900; font-size: clamp(80px,12vw,220px); color: transparent; -webkit-text-stroke: 1.5px rgba(74,48,64,0.04); white-space: nowrap; user-select: none; pointer-events: none; }
+.anims-header { text-align: center; margin-bottom: 56px; position: relative; z-index: 2; }
+.anims-header h2 { font-family: 'Outfit', sans-serif; font-weight: 900; font-size: clamp(28px,3.5vw,44px); letter-spacing: -0.03em; color: var(--text-primary); margin-bottom: 8px; }
+.anims-header .wavy-accent { color: var(--accent); font-size: 20px; }
+.anims-header p { font-size: 15px; color: var(--text-secondary); margin-top: 12px; }
+.anims-scroll-wrap { position: relative; z-index: 2; margin: 0 -56px; padding: 0 56px; overflow: hidden; }
+.anims-scroll { display: flex; gap: 16px; width: max-content; padding: 8px 0 60px; animation: anims-marquee 60s linear infinite; }
+.anims-scroll:hover { animation-play-state: paused; }
+@keyframes anims-marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.anim-card { flex-shrink: 0; width: 160px; border-radius: 18px; overflow: visible; transition: all 0.35s cubic-bezier(0.16,1,0.3,1); cursor: default; position: relative; transform: translateY(var(--y, 0px)); }
+.anim-card:hover { transform: translateY(-4px) scale(1.05); }
+.anim-card img { width: 100%; aspect-ratio: 1; object-fit: contain; display: block; border-radius: 18px; background: rgba(255,107,138,0.03); }
+.anim-card span { position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%); padding: 4px 12px; background: rgba(255,255,255,0.85); backdrop-filter: blur(8px); border-radius: 100px; font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 11px; color: var(--text-primary); white-space: nowrap; opacity: 0; transition: opacity 0.25s; }
+.anim-card:hover span { opacity: 1; }
+
+/* CTA */
+.cta { padding: 120px 56px; text-align: center; position: relative; }
+.cta::before { content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,107,138,0.06) 0%, transparent 60%); pointer-events: none; }
+.cta-inner { max-width: 600px; margin: 0 auto; position: relative; }
+.cta-badge { display: inline-block; padding: 6px 16px; background: var(--accent-light); border: 1px solid rgba(255,107,138,0.15); border-radius: 100px; font-size: 12px; font-weight: 600; color: var(--accent); margin-bottom: 22px; }
+.cta h2 { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: clamp(28px,4vw,44px); letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 14px; }
+.cta p { font-size: 15px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 32px; }
+.cta-btns { display: flex; gap: 12px; justify-content: center; }
+.btn-dl { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; background: var(--accent); color: white; border: none; border-radius: 100px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 20px rgba(255,107,138,0.25); }
+.btn-dl:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,107,138,0.35); }
+.cta-note { font-size: 12px; color: var(--text-muted); margin-top: 16px; }
+
+/* FOOTER */
+.footer { padding: 28px 56px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(74,48,64,0.06); font-size: 13px; color: var(--text-muted); }
+.footer-r { display: flex; gap: 24px; }
+.footer-r a { color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
+.footer-r a:hover { color: var(--accent); }
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .bento-grid { grid-template-columns: repeat(2, 1fr); }
+  .bento-wide { grid-column: span 2; }
+  .hero-left { left: 8%; bottom: 160px; }
+}
+@media (max-width: 768px) {
+  .nav { padding: 12px 24px; }
+  .nav-links { display: none; }
+  .hero-left { left: 24px; right: 24px; bottom: 120px; }
+  .hero-cards { display: none; }
+  .bento { padding: 60px 24px; }
+  .bento-grid { grid-template-columns: 1fr; }
+  .bento-lg, .bento-tall, .bento-wide { grid-column: span 1; }
+  .anims { padding: 60px 24px; }
+  .anims-scroll-wrap { margin: 0 -24px; padding: 0 24px; }
+  .cta { padding: 80px 24px; }
+  .stat-callout { padding: 48px 24px; }
+  .stat-callout-inner { flex-wrap: wrap; gap: 24px; }
+  .stat-callout-divider { display: none; }
+  .footer { padding: 20px 24px; flex-direction: column; gap: 12px; }
+}
+</style>
+</head>
+<body>
+<main class="page-card">
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#">
+      <img class="nav-logo-img" src="logo.png" alt="团子" onerror="this.style.display='none'">
+      <span>团子</span>
+    </a>
+    <div class="nav-right">
+      <a class="nav-cta" href="#download">下载</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-glow-accent"></div>
+  <div class="hero-mega-text-fill">Molly</div>
+  <div class="hero-mega-text">Molly</div>
+  <div class="hero-dot dot-a"></div>
+  <div class="hero-dot dot-b"></div>
+  <div class="hero-dot dot-c"></div>
+
+  <div class="hero-media">
+    <div class="hero-canvas-wrap">
+      <canvas id="heroCanvas"></canvas>
+      <img class="hero-shelf" src="shelf.png" alt="">
+    </div>
+  </div>
+
+  <div class="hero-left">
+    <h1>你的 AI <span class="accent-text">桌面伙伴</span></h1>
+    <p>陪你写代码、提醒喝水、听音乐的桌面小猫。实时感知 AI 工作状态，用 20+ 种动画陪伴你的每一刻。</p>
+    <div class="hero-buttons">
+      <a class="btn-primary" href="#download">免费下载</a>
+      <a class="btn-ghost" href="https://github.com/Sanchez-77/tuanzi-releases" target="_blank">查看源码</a>
+    </div>
+  </div>
+
+  <div class="hero-cards">
+    <div class="hcard"><div class="hcard-icon">🤖</div><div class="hcard-text"><strong>AI 联动</strong><span>实时感知工作状态</span></div></div>
+    <div class="hcard"><div class="hcard-icon">🎵</div><div class="hcard-text"><strong>音乐检测</strong><span>跟你一起听歌</span></div></div>
+    <div class="hcard"><div class="hcard-icon">💧</div><div class="hcard-text"><strong>喝水提醒</strong><span>关心你的健康</span></div></div>
+    <div class="hcard"><div class="hcard-icon">🔒</div><div class="hcard-text"><strong>完全本地</strong><span>零数据上传</span></div></div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-strip">
+  <div class="marquee-track">
+    <span>Claude Code</span><span class="marquee-dot"></span>
+    <span>Cursor</span><span class="marquee-dot"></span>
+    <span>Gemini CLI</span><span class="marquee-dot"></span>
+    <span>Codex</span><span class="marquee-dot"></span>
+    <span>Kimi CLI</span><span class="marquee-dot"></span>
+    <span>Windsurf</span><span class="marquee-dot"></span>
+    <span>Copilot</span><span class="marquee-dot"></span>
+    <span>网易云音乐</span><span class="marquee-dot"></span>
+    <span>Apple Music</span><span class="marquee-dot"></span>
+    <span>Spotify</span><span class="marquee-dot"></span>
+    <span>Claude Code</span><span class="marquee-dot"></span>
+    <span>Cursor</span><span class="marquee-dot"></span>
+    <span>Gemini CLI</span><span class="marquee-dot"></span>
+    <span>Codex</span><span class="marquee-dot"></span>
+    <span>Kimi CLI</span><span class="marquee-dot"></span>
+    <span>Windsurf</span><span class="marquee-dot"></span>
+    <span>Copilot</span><span class="marquee-dot"></span>
+    <span>网易云音乐</span><span class="marquee-dot"></span>
+    <span>Apple Music</span><span class="marquee-dot"></span>
+    <span>Spotify</span><span class="marquee-dot"></span>
+  </div>
+</div>
+
+<!-- BENTO -->
+<section class="bento" id="features">
+  <div class="bento-inner">
+    <div class="bento-header">
+      <h2>为你的桌面<em>注入灵魂</em></h2>
+      <p class="sdesc">团子不只是装饰——它能实时感知你的 AI 工作流，用丰富动画回应你的每一步操作。</p>
+    </div>
+    <div class="bento-grid">
+      <!-- AI 联动 -->
+      <div class="bento-card bento-lg bento-dark">
+        <div class="bento-card-content">
+          <div class="bento-big-number" style="color:#FFF0F3">10<span style="color:rgba(255,107,138,0.7)">+</span></div>
+          <div class="bento-big-label" style="color:rgba(255,240,243,0.7)">支持的 AI 工具</div>
+          <div class="bento-card-desc" style="color:rgba(255,240,243,0.45)">通过 Hook 机制自动感知 AI Agent 的思考、搜索、工作、完成状态</div>
+        </div>
+        <div class="bento-card-visual">
+          <div class="agent-pills">
+            <span class="agent-pill">Claude Code</span>
+            <span class="agent-pill">Cursor</span>
+            <span class="agent-pill">Gemini CLI</span>
+            <span class="agent-pill">Codex</span>
+            <span class="agent-pill">Kimi CLI</span>
+            <span class="agent-pill ap-more">+5 更多</span>
+          </div>
+        </div>
+      </div>
+      <!-- 隐私 -->
+      <div class="bento-card bento-tall bento-accent">
+        <div class="bento-anim-number">100%</div>
+        <div class="bento-anim-label">本地运行<br>完全隐私</div>
+        <div class="bento-anim-preview">
+          <div class="anim-bubble">无服务器</div>
+          <div class="anim-bubble">无遥测</div>
+          <div class="anim-bubble">无需注册</div>
+          <div class="anim-bubble">开源免费</div>
+        </div>
+      </div>
+      <!-- 边缘吸附 -->
+      <div class="bento-card bento-sm bento-warm">
+        <div class="bento-sm-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3H3v18h18V3z"/><path d="M9 3v18"/><path d="M14 9l3 3-3 3"/></svg></div>
+        <h3>边缘吸附</h3>
+        <p>拖到屏幕边缘自动吸附，悬停展开会话面板，不遮挡工作区。</p>
+      </div>
+      <!-- 多终端 -->
+      <div class="bento-card bento-sm bento-glass">
+        <div class="bento-sm-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+        <h3>多终端管理</h3>
+        <p>一键跳回对应的终端或 IDE 会话，多项目并行不迷路。</p>
+      </div>
+      <!-- 工作流程 -->
+      <div class="bento-card bento-wide bento-dark">
+        <div class="bento-flow">
+          <div class="flow-step">
+            <div class="flow-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></div>
+            <div class="flow-text">AI Agent</div>
+          </div>
+          <div class="flow-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+          <div class="flow-step">
+            <div class="flow-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+            <div class="flow-text">Hook 事件</div>
+          </div>
+          <div class="flow-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+          <div class="flow-step">
+            <div class="flow-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg></div>
+            <div class="flow-text">Unix Socket</div>
+          </div>
+          <div class="flow-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></div>
+          <div class="flow-step flow-step-highlight">
+            <div class="flow-icon">🐱</div>
+            <div class="flow-text">团子反应!</div>
+          </div>
+        </div>
+        <div class="bento-flow-label">零配置，即装即用，失败安全设计</div>
+      </div>
+      <!-- 喝水提醒 -->
+      <div class="bento-card bento-sm bento-mint">
+        <div class="bento-sm-icon">💧</div>
+        <h3>喝水提醒</h3>
+        <p>自定义提醒间隔，倒计时实时显示，养成健康习惯。</p>
+      </div>
+      <!-- 原生 macOS -->
+      <div class="bento-card bento-sm bento-peach">
+        <div class="bento-sm-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg></div>
+        <h3>原生 macOS</h3>
+        <p>SwiftUI + AppKit + SpriteKit，非 Electron，轻量流畅。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stat-callout">
+  <div class="stat-callout-inner">
+    <div class="stat-callout-item"><div class="stat-callout-num stat-callout-special">0</div><div class="stat-callout-label">数据上传</div></div>
+    <div class="stat-callout-divider"></div>
+    <div class="stat-callout-item"><div class="stat-callout-num" data-count="20">0</div><div class="stat-callout-label">动画数量</div></div>
+    <div class="stat-callout-divider"></div>
+    <div class="stat-callout-item"><div class="stat-callout-num" data-count="10">0</div><div class="stat-callout-label">AI 工具</div></div>
+    <div class="stat-callout-divider"></div>
+    <div class="stat-callout-item"><div class="stat-callout-num stat-callout-special">13+</div><div class="stat-callout-label">macOS 兼容</div></div>
+  </div>
+</div>
+
+<!-- ANIMATIONS -->
+<section class="anims" id="animations">
+  <div class="anims-inner">
+    <div class="anims-watermark" aria-hidden="true">ANIMATIONS</div>
+    <div class="anims-header">
+      <h2>每一刻，都有回应</h2>
+      <div class="wavy-accent">〰</div>
+      <p>团子会跟随你的节奏——从专注打字到完成庆祝，每个状态都有对应动画。</p>
+    </div>
+    <div class="anims-scroll-wrap">
+      <div class="anims-scroll">
+        <div class="anim-card" style="--y:0px"><img src="gif/待机.gif" alt="待机" loading="lazy"><span>待机</span></div>
+        <div class="anim-card" style="--y:12px"><img src="gif/敲键盘.gif" alt="打字" loading="lazy"><span>打字</span></div>
+        <div class="anim-card" style="--y:-8px"><img src="gif/搜索.gif" alt="搜索" loading="lazy"><span>搜索</span></div>
+        <div class="anim-card" style="--y:18px"><img src="gif/工作.gif" alt="工作" loading="lazy"><span>工作</span></div>
+        <div class="anim-card" style="--y:-14px"><img src="gif/完成.gif" alt="完成" loading="lazy"><span>完成</span></div>
+        <div class="anim-card" style="--y:6px"><img src="gif/提醒.gif" alt="提醒" loading="lazy"><span>提醒</span></div>
+        <div class="anim-card" style="--y:-10px"><img src="gif/伸懒腰.gif" alt="伸懒腰" loading="lazy"><span>伸懒腰</span></div>
+        <div class="anim-card" style="--y:16px"><img src="gif/喝水.gif" alt="喝水" loading="lazy"><span>喝水</span></div>
+        <div class="anim-card" style="--y:-6px"><img src="gif/睡觉.gif" alt="睡觉" loading="lazy"><span>睡觉</span></div>
+        <div class="anim-card" style="--y:10px"><img src="gif/提起.gif" alt="拖拽" loading="lazy"><span>拖拽</span></div>
+        <div class="anim-card" style="--y:-16px"><img src="gif/音乐.gif" alt="听音乐" loading="lazy"><span>听音乐</span></div>
+        <div class="anim-card" style="--y:0px"><img src="gif/待机.gif" alt="待机" loading="lazy"><span>待机</span></div>
+        <div class="anim-card" style="--y:12px"><img src="gif/敲键盘.gif" alt="打字" loading="lazy"><span>打字</span></div>
+        <div class="anim-card" style="--y:-8px"><img src="gif/搜索.gif" alt="搜索" loading="lazy"><span>搜索</span></div>
+        <div class="anim-card" style="--y:18px"><img src="gif/工作.gif" alt="工作" loading="lazy"><span>工作</span></div>
+        <div class="anim-card" style="--y:-14px"><img src="gif/完成.gif" alt="完成" loading="lazy"><span>完成</span></div>
+        <div class="anim-card" style="--y:6px"><img src="gif/提醒.gif" alt="提醒" loading="lazy"><span>提醒</span></div>
+        <div class="anim-card" style="--y:-10px"><img src="gif/伸懒腰.gif" alt="伸懒腰" loading="lazy"><span>伸懒腰</span></div>
+        <div class="anim-card" style="--y:16px"><img src="gif/喝水.gif" alt="喝水" loading="lazy"><span>喝水</span></div>
+        <div class="anim-card" style="--y:-6px"><img src="gif/睡觉.gif" alt="睡觉" loading="lazy"><span>睡觉</span></div>
+        <div class="anim-card" style="--y:10px"><img src="gif/提起.gif" alt="拖拽" loading="lazy"><span>拖拽</span></div>
+        <div class="anim-card" style="--y:-16px"><img src="gif/音乐.gif" alt="听音乐" loading="lazy"><span>听音乐</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="download">
+  <div class="cta-inner">
+    <div class="cta-badge">免费 & 开源</div>
+    <h2>准备好认识<br>你的新伙伴了吗？</h2>
+    <p>团子完全免费、轻量原生、运行在 macOS 上。<br>下载即可让你的桌面活起来。</p>
+    <div class="cta-btns">
+      <button class="btn-dl"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg> macOS 免费下载</button>
+      <button class="btn-ghost" onclick="window.open('https://github.com/Sanchez-77/tuanzi-releases')">GitHub</button>
+    </div>
+    <p class="cta-note">需要 macOS 13.0+ · 支持 Claude Code、Cursor 等 AI 工具</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-l">Made with ❤️ and Claude</div>
+  <div class="footer-r">
+    <a href="https://github.com/Sanchez-77/tuanzi-releases">GitHub</a>
+    <a href="#">反馈</a>
+    <a href="#">隐私</a>
+  </div>
+</footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const nav = document.querySelector('.nav');
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => { nav.classList.toggle('scrolled', window.scrollY > 60); ticking = false; });
+      ticking = true;
+    }
+  });
+
+  gsap.set('.nav', { opacity: 0, yPercent: -100 });
+  gsap.set('.hero-mega-text, .hero-mega-text-fill', { scale: 0.95, opacity: 0 });
+  gsap.set('.hero-left', { opacity: 0, y: 24 });
+  gsap.set('.hcard', { opacity: 0, y: 28 });
+
+  const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+  tl.to('.nav', { opacity: 1, yPercent: 0, duration: 0.6 }, 0.2)
+    .to('.hero-mega-text-fill', { opacity: 1, scale: 1, duration: 1.0 }, 0.3)
+    .to('.hero-mega-text', { opacity: 1, scale: 1, duration: 1.0 }, 0.3)
+    .to('.hero-left', { opacity: 1, y: 0, duration: 0.7 }, 0.5)
+    .to('.hcard', { opacity: 1, y: 0, duration: 0.6, stagger: 0.08 }, 0.7);
+
+  const observe = (selector, childSelector) => {
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll(childSelector).forEach((el, i) => {
+            gsap.fromTo(el, { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.6, delay: i * 0.06, ease: 'power2.out' });
+          });
+          obs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll(selector).forEach(el => obs.observe(el));
+  };
+  observe('.bento-grid', '.bento-card');
+
+  const statObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.stat-callout-num[data-count]').forEach(el => {
+          const target = parseInt(el.dataset.count);
+          gsap.to({ val: 0 }, { val: target, duration: 1.8, ease: 'power2.out', onUpdate: function() { el.textContent = Math.round(this.targets()[0].val).toLocaleString(); } });
+        });
+        statObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.4 });
+  const statEl = document.querySelector('.stat-callout');
+  if (statEl) statObs.observe(statEl);
+
+  const ctaObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        gsap.fromTo('.cta-inner', { opacity: 0, y: 36 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' });
+        ctaObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.25 });
+  const ctaEl = document.querySelector('.cta');
+  if (ctaEl) ctaObs.observe(ctaEl);
+
+  document.querySelectorAll('.anim-card img').forEach((img, i) => {
+    const origSrc = img.src;
+    img.src = '';
+    setTimeout(() => { img.src = origSrc; }, (i % 11) * 200);
+  });
+
+  // === Hero Canvas 序列帧动画 ===
+  const heroCanvas = document.getElementById('heroCanvas');
+  const ctx = heroCanvas.getContext('2d');
+  const FPS = 24;
+  const frameInterval = 1000 / FPS;
+
+  const anims = {
+    intro: { prefix: '网页探头', count: 49, frames: [] },
+    idle: { prefix: '网页待机', count: 81, frames: [] },
+    scratch: { prefix: '网页挠耳朵', count: 49, frames: [] },
+    grab: { prefix: '网页抓', count: 81, frames: [] },
+  };
+
+  function loadAnim(anim) {
+    return new Promise(resolve => {
+      let loaded = 0;
+      for (let i = 0; i < anim.count; i++) {
+        const img = new Image();
+        img.onload = img.onerror = () => { loaded++; if (loaded >= anim.count) resolve(); };
+        img.src = `frames/${anim.prefix}/${anim.prefix}_${i}.webp`;
+        anim.frames[i] = img;
+      }
+    });
+  }
+
+  function sizeCanvas() {
+    const wrap = heroCanvas.parentElement;
+    const r = wrap.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    heroCanvas.width = r.width * dpr;
+    heroCanvas.height = r.height * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  let currentAnim = null;
+  let frameIndex = 0;
+  let lastFrameTime = 0;
+  let playing = false;
+  let onAnimEnd = null;
+
+  function drawFrame(timestamp) {
+    if (!playing) return;
+    if (timestamp - lastFrameTime < frameInterval) {
+      requestAnimationFrame(drawFrame);
+      return;
+    }
+    lastFrameTime = timestamp;
+
+    const anim = currentAnim;
+    if (!anim || !anim.frames[frameIndex]) { requestAnimationFrame(drawFrame); return; }
+
+    const wrap = heroCanvas.parentElement.getBoundingClientRect();
+    ctx.clearRect(0, 0, wrap.width, wrap.height);
+    ctx.drawImage(anim.frames[frameIndex], 0, 0, wrap.width, wrap.height);
+
+    frameIndex++;
+    if (frameIndex >= anim.count) {
+      if (onAnimEnd) { onAnimEnd(); return; }
+      frameIndex = 0; // loop
+    }
+    requestAnimationFrame(drawFrame);
+  }
+
+  function playAnim(anim, loop, callback) {
+    currentAnim = anim;
+    frameIndex = 0;
+    playing = true;
+    onAnimEnd = loop ? null : callback;
+    if (loop) onAnimEnd = null;
+    requestAnimationFrame(drawFrame);
+  }
+
+  function startIdleWithRandom() {
+    playAnim(anims.idle, true, null);
+    scheduleRandom();
+  }
+
+  function scheduleRandom() {
+    const delay = 6000 + Math.random() * 10000;
+    setTimeout(() => {
+      if (!playing) return;
+      const picks = [anims.scratch, anims.grab];
+      const pick = picks[Math.floor(Math.random() * picks.length)];
+      playAnim(pick, false, () => { startIdleWithRandom(); });
+    }, delay);
+  }
+
+  // Boot: load intro + idle first, then start
+  sizeCanvas();
+  window.addEventListener('resize', sizeCanvas);
+
+  Promise.all([loadAnim(anims.intro), loadAnim(anims.idle)]).then(() => {
+    playAnim(anims.intro, false, () => { startIdleWithRandom(); });
+  });
+  // Preload random anims in background
+  loadAnim(anims.scratch);
+  loadAnim(anims.grab);
+});
+</script>
+</body>
+</html>
