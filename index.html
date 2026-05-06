@@ -117,7 +117,7 @@ body::after {
 }
 .hero-canvas-wrap {
   position: relative;
-  width: 100vw; max-width: 1500px; min-width: 500px;
+  width: 100vw; max-width: 1500px; min-width: 400px;
   aspect-ratio: 1;
   margin-bottom: -5%;
 }
@@ -299,6 +299,11 @@ body::after {
 .footer-r a:hover { color: var(--accent); }
 
 /* RESPONSIVE */
+@media (max-height: 900px) {
+  .hero-canvas-wrap { width: 85vh; }
+  .hero { min-height: 600px; }
+  .hero-left { bottom: 140px; }
+}
 @media (max-width: 1024px) {
   .bento-grid { grid-template-columns: repeat(2, 1fr); }
   .bento-wide { grid-column: span 2; }
@@ -512,28 +517,28 @@ body::after {
     </div>
     <div class="anims-scroll-wrap">
       <div class="anims-scroll">
-        <div class="anim-card" style="--y:0px"><img src="gif/待机.gif" alt="待机" loading="lazy"><span>待机</span></div>
-        <div class="anim-card" style="--y:12px"><img src="gif/敲键盘.gif" alt="打字" loading="lazy"><span>打字</span></div>
-        <div class="anim-card" style="--y:-8px"><img src="gif/搜索.gif" alt="搜索" loading="lazy"><span>搜索</span></div>
-        <div class="anim-card" style="--y:18px"><img src="gif/工作.gif" alt="工作" loading="lazy"><span>工作</span></div>
-        <div class="anim-card" style="--y:-14px"><img src="gif/完成.gif" alt="完成" loading="lazy"><span>完成</span></div>
-        <div class="anim-card" style="--y:6px"><img src="gif/提醒.gif" alt="提醒" loading="lazy"><span>提醒</span></div>
-        <div class="anim-card" style="--y:-10px"><img src="gif/伸懒腰.gif" alt="伸懒腰" loading="lazy"><span>伸懒腰</span></div>
-        <div class="anim-card" style="--y:16px"><img src="gif/喝水.gif" alt="喝水" loading="lazy"><span>喝水</span></div>
-        <div class="anim-card" style="--y:-6px"><img src="gif/睡觉.gif" alt="睡觉" loading="lazy"><span>睡觉</span></div>
-        <div class="anim-card" style="--y:10px"><img src="gif/提起.gif" alt="拖拽" loading="lazy"><span>拖拽</span></div>
-        <div class="anim-card" style="--y:-16px"><img src="gif/音乐.gif" alt="听音乐" loading="lazy"><span>听音乐</span></div>
-        <div class="anim-card" style="--y:0px"><img src="gif/待机.gif" alt="待机" loading="lazy"><span>待机</span></div>
-        <div class="anim-card" style="--y:12px"><img src="gif/敲键盘.gif" alt="打字" loading="lazy"><span>打字</span></div>
-        <div class="anim-card" style="--y:-8px"><img src="gif/搜索.gif" alt="搜索" loading="lazy"><span>搜索</span></div>
-        <div class="anim-card" style="--y:18px"><img src="gif/工作.gif" alt="工作" loading="lazy"><span>工作</span></div>
-        <div class="anim-card" style="--y:-14px"><img src="gif/完成.gif" alt="完成" loading="lazy"><span>完成</span></div>
-        <div class="anim-card" style="--y:6px"><img src="gif/提醒.gif" alt="提醒" loading="lazy"><span>提醒</span></div>
-        <div class="anim-card" style="--y:-10px"><img src="gif/伸懒腰.gif" alt="伸懒腰" loading="lazy"><span>伸懒腰</span></div>
-        <div class="anim-card" style="--y:16px"><img src="gif/喝水.gif" alt="喝水" loading="lazy"><span>喝水</span></div>
-        <div class="anim-card" style="--y:-6px"><img src="gif/睡觉.gif" alt="睡觉" loading="lazy"><span>睡觉</span></div>
-        <div class="anim-card" style="--y:10px"><img src="gif/提起.gif" alt="拖拽" loading="lazy"><span>拖拽</span></div>
-        <div class="anim-card" style="--y:-16px"><img src="gif/音乐.gif" alt="听音乐" loading="lazy"><span>听音乐</span></div>
+        <div class="anim-card" style="--y:0px"><img data-src="gif/待机.webp" alt="待机"><span>待机</span></div>
+        <div class="anim-card" style="--y:12px"><img data-src="gif/敲键盘.webp" alt="打字"><span>打字</span></div>
+        <div class="anim-card" style="--y:-8px"><img data-src="gif/搜索.webp" alt="搜索"><span>搜索</span></div>
+        <div class="anim-card" style="--y:18px"><img data-src="gif/工作.webp" alt="工作"><span>工作</span></div>
+        <div class="anim-card" style="--y:-14px"><img data-src="gif/完成.webp" alt="完成"><span>完成</span></div>
+        <div class="anim-card" style="--y:6px"><img data-src="gif/提醒.webp" alt="提醒"><span>提醒</span></div>
+        <div class="anim-card" style="--y:-10px"><img data-src="gif/伸懒腰.webp" alt="伸懒腰"><span>伸懒腰</span></div>
+        <div class="anim-card" style="--y:16px"><img data-src="gif/喝水.webp" alt="喝水"><span>喝水</span></div>
+        <div class="anim-card" style="--y:-6px"><img data-src="gif/睡觉.webp" alt="睡觉"><span>睡觉</span></div>
+        <div class="anim-card" style="--y:10px"><img data-src="gif/提起.webp" alt="拖拽"><span>拖拽</span></div>
+        <div class="anim-card" style="--y:-16px"><img data-src="gif/音乐.webp" alt="听音乐"><span>听音乐</span></div>
+        <div class="anim-card" style="--y:0px"><img data-src="gif/待机.webp" alt="待机"><span>待机</span></div>
+        <div class="anim-card" style="--y:12px"><img data-src="gif/敲键盘.webp" alt="打字"><span>打字</span></div>
+        <div class="anim-card" style="--y:-8px"><img data-src="gif/搜索.webp" alt="搜索"><span>搜索</span></div>
+        <div class="anim-card" style="--y:18px"><img data-src="gif/工作.webp" alt="工作"><span>工作</span></div>
+        <div class="anim-card" style="--y:-14px"><img data-src="gif/完成.webp" alt="完成"><span>完成</span></div>
+        <div class="anim-card" style="--y:6px"><img data-src="gif/提醒.webp" alt="提醒"><span>提醒</span></div>
+        <div class="anim-card" style="--y:-10px"><img data-src="gif/伸懒腰.webp" alt="伸懒腰"><span>伸懒腰</span></div>
+        <div class="anim-card" style="--y:16px"><img data-src="gif/喝水.webp" alt="喝水"><span>喝水</span></div>
+        <div class="anim-card" style="--y:-6px"><img data-src="gif/睡觉.webp" alt="睡觉"><span>睡觉</span></div>
+        <div class="anim-card" style="--y:10px"><img data-src="gif/提起.webp" alt="拖拽"><span>拖拽</span></div>
+        <div class="anim-card" style="--y:-16px"><img data-src="gif/音乐.webp" alt="听音乐"><span>听音乐</span></div>
       </div>
     </div>
   </div>
@@ -628,11 +633,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const ctaEl = document.querySelector('.cta');
   if (ctaEl) ctaObs.observe(ctaEl);
 
-  document.querySelectorAll('.anim-card img').forEach((img, i) => {
-    const origSrc = img.src;
-    img.src = '';
-    setTimeout(() => { img.src = origSrc; }, (i % 11) * 200);
-  });
+  const animObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.anim-card img[data-src]').forEach((img, i) => {
+          setTimeout(() => { img.src = img.dataset.src; img.removeAttribute('data-src'); }, i * 100);
+        });
+        animObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.05, rootMargin: '200px' });
+  const animSection = document.querySelector('.anims-scroll-wrap');
+  if (animSection) animObs.observe(animSection);
 
   // === Hero Canvas 序列帧动画 ===
   const heroCanvas = document.getElementById('heroCanvas');
