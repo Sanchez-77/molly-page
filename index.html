@@ -121,7 +121,7 @@ body::after {
   aspect-ratio: 1;
   margin-bottom: -5%;
 }
-.hero-canvas-wrap canvas { width: 100%; height: 100%; display: block; }
+.hero-canvas-wrap canvas { display: block; width: 100%; height: 100%; }
 .hero-shelf {
   position: absolute;
   bottom: -20%; left: -26%;
@@ -354,7 +354,7 @@ body::after {
 
   <div class="hero-media">
     <div class="hero-canvas-wrap">
-      <canvas id="heroCanvas"></canvas>
+      <canvas id="pagCanvas" width="800" height="800"></canvas>
       <img class="hero-shelf" src="shelf.png" alt="">
     </div>
   </div>
@@ -569,6 +569,7 @@ body::after {
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/libpag@latest/lib/libpag.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const nav = document.querySelector('.nav');
@@ -645,80 +646,59 @@ document.addEventListener('DOMContentLoaded', () => {
   const animSection = document.querySelector('.anims-scroll-wrap');
   if (animSection) animObs.observe(animSection);
 
-  // === Hero Canvas 动画 (VP9 Alpha WebM → Canvas) ===
-  const heroCanvas = document.getElementById('heroCanvas');
-  const ctx = heroCanvas.getContext('2d');
+});
 
-  function makeVideo(src) {
-    const v = document.createElement('video');
-    v.muted = true;
-    v.playsInline = true;
-    v.preload = 'auto';
-    v.src = src;
-    return v;
-  }
+// === Hero 动画 (PAG SDK) — 使用 window.onload 确保 WASM 加载完成 ===
+window.addEventListener('load', async () => {
+  try {
+    const pagCanvas = document.getElementById('pagCanvas');
+    if (!pagCanvas) { console.error('[PAG] Canvas not found'); return; }
+    if (!window.libpag) { console.error('[PAG] libpag not loaded'); return; }
 
-  const vids = {
-    intro: makeVideo('hero-intro.webm'),
-    idle: makeVideo('hero-idle.webm'),
-    scratch: makeVideo('hero-scratch.webm'),
-    grab: makeVideo('hero-grab.webm'),
-  };
+    const PAG = await window.libpag.PAGInit();
+    console.log('[PAG] Initialized');
 
-  function sizeCanvas() {
-    const wrap = heroCanvas.parentElement;
-    const r = wrap.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
-    heroCanvas.width = r.width * dpr;
-    heroCanvas.height = r.height * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-
-  let activeVid = null;
-  let rafId = 0;
-
-  function render() {
-    if (activeVid && activeVid.readyState >= 2) {
-      const wrap = heroCanvas.parentElement.getBoundingClientRect();
-      ctx.clearRect(0, 0, wrap.width, wrap.height);
-      ctx.drawImage(activeVid, 0, 0, wrap.width, wrap.height);
+    async function loadPAG(src) {
+      const resp = await fetch(src);
+      if (!resp.ok) throw new Error(`Fetch ${src} failed: ${resp.status}`);
+      const buffer = await resp.arrayBuffer();
+      return await PAG.PAGFile.load(buffer);
     }
-    rafId = requestAnimationFrame(render);
-  }
 
-  function play(video, loop, onEnd) {
-    if (activeVid && activeVid !== video) {
-      activeVid.pause();
+    let pagView = null;
+
+    async function playFile(src, repeatCount) {
+      const pagFile = await loadPAG(src);
+      pagCanvas.width = pagFile.width();
+      pagCanvas.height = pagFile.height();
+      if (pagView) { pagView.stop(); pagView.destroy(); }
+      pagView = await PAG.PAGView.init(pagFile, pagCanvas);
+      pagView.setRepeatCount(repeatCount);
+      await pagView.play();
+      return pagView;
     }
-    activeVid = video;
-    video.loop = loop;
-    video.currentTime = 0;
-    video.onended = (!loop && onEnd) ? onEnd : null;
-    video.play().catch(() => {});
+
+    // Intro → idle → random loop
+    const view = await playFile('网页探头二级页_bmp.pag', 1);
+    view.addListener('onAnimationEnd', async () => {
+      await playFile('网页待机二级页_bmp.pag', 0);
+      scheduleRandom();
+    });
+
+    function scheduleRandom() {
+      const delay = 3000 + Math.random() * 4000;
+      setTimeout(async () => {
+        const pick = Math.random() < 0.5 ? '网页挠耳朵二级页_bmp.pag' : '网页抓二级页_bmp.pag';
+        const v = await playFile(pick, 1);
+        v.addListener('onAnimationEnd', async () => {
+          await playFile('网页待机二级页_bmp.pag', 0);
+          scheduleRandom();
+        });
+      }, delay);
+    }
+  } catch (err) {
+    console.error('[PAG] Error:', err);
   }
-
-  function startIdleWithRandom() {
-    play(vids.idle, true);
-    scheduleRandom();
-  }
-
-  function scheduleRandom() {
-    const delay = 3000 + Math.random() * 4000;
-    setTimeout(() => {
-      if (!activeVid) return;
-      const pick = [vids.scratch, vids.grab][Math.random() < 0.5 ? 0 : 1];
-      play(pick, false, startIdleWithRandom);
-    }, delay);
-  }
-
-  sizeCanvas();
-  window.addEventListener('resize', sizeCanvas);
-  rafId = requestAnimationFrame(render);
-
-  vids.intro.addEventListener('canplay', () => {
-    play(vids.intro, false, startIdleWithRandom);
-  }, { once: true });
-  setTimeout(() => { if (!activeVid) play(vids.intro, false, startIdleWithRandom); }, 2000);
 });
 </script>
 </body>
