@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>安装指南 — 团子</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #FFF8F5;
+  --bg-warm: #FFF0EB;
+  --text-primary: #4A3040;
+  --text-secondary: #8B6B7B;
+  --text-muted: #C4A0B0;
+  --accent: #FF6B8A;
+  --accent-hover: #E85A78;
+  --accent-light: rgba(255, 107, 138, 0.08);
+  --glass: rgba(255, 255, 255, 0.65);
+  --glass-bold: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-blur: blur(20px);
+  --glass-shadow: 0 4px 24px rgba(74, 48, 64, 0.06);
+  --glass-shadow-hover: 0 8px 32px rgba(74, 48, 64, 0.1);
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-pill: 100px;
+}
+
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* NAV */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 14px 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 248, 245, 0.85);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 1px 12px rgba(74, 48, 64, 0.06);
+}
+.nav-inner {
+  width: 100%; max-width: 1324px; padding: 0 40px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text-primary); }
+.nav-logo-img { width: 36px; height: 36px; border-radius: 9px; object-fit: cover; border: 1.5px solid rgba(74,48,64,0.1); }
+.nav-brand span { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 20px; letter-spacing: -0.02em; }
+.nav-right { display: flex; align-items: center; gap: 24px; }
+.nav-link { text-decoration: none; color: var(--text-secondary); font-weight: 500; font-size: 13.5px; transition: color 0.3s; }
+.nav-link:hover { color: var(--text-primary); }
+.nav-cta {
+  display: inline-block; text-decoration: none; padding: 7px 20px;
+  background: var(--text-primary); color: var(--bg); border: none; border-radius: 100px;
+  font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.3s;
+}
+.nav-cta:hover { background: var(--accent); box-shadow: 0 4px 16px rgba(255,107,138,0.3); }
+
+/* MAIN */
+.page { padding: 120px 40px 80px; max-width: 860px; margin: 0 auto; }
+.page-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 42px; font-weight: 800; letter-spacing: -0.03em;
+  margin-bottom: 12px;
+}
+.page-subtitle { color: var(--text-secondary); font-size: 16px; margin-bottom: 56px; }
+
+/* VIDEO */
+.video-wrap {
+  margin-bottom: 56px; border-radius: var(--radius-lg); overflow: hidden;
+  box-shadow: 0 8px 40px rgba(74, 48, 64, 0.12);
+  border: 1px solid rgba(74, 48, 64, 0.06);
+}
+.video-wrap video { width: 100%; display: block; }
+
+/* STEPS */
+.steps { display: flex; flex-direction: column; gap: 48px; }
+.step {
+  background: var(--glass-bold);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  box-shadow: var(--glass-shadow);
+  transition: box-shadow 0.3s;
+}
+.step:hover { box-shadow: var(--glass-shadow-hover); }
+.step-header { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+.step-number {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--accent); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 18px;
+  flex-shrink: 0;
+}
+.step-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+}
+.step-desc {
+  color: var(--text-secondary); font-size: 14.5px; line-height: 1.7;
+  margin-bottom: 20px;
+}
+.step-img {
+  width: 100%; border-radius: var(--radius-md);
+  box-shadow: 0 4px 20px rgba(74, 48, 64, 0.08);
+  border: 1px solid rgba(74, 48, 64, 0.06);
+}
+.step-placeholder {
+  width: 100%; aspect-ratio: 16/10; border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--bg-warm), #FFE0D8);
+  border: 2px dashed var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); font-size: 14px;
+}
+.step-tip {
+  margin-top: 14px; padding: 12px 16px;
+  background: var(--accent-light); border-radius: 12px;
+  font-size: 13.5px; color: var(--text-secondary);
+}
+.step-tip strong { color: var(--accent); }
+
+/* CTA BOTTOM */
+.bottom-cta {
+  margin-top: 64px; text-align: center;
+  padding: 48px; border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, #FFF0EB, #FFE8E0);
+}
+.bottom-cta h3 {
+  font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 700;
+  margin-bottom: 8px;
+}
+.bottom-cta p { color: var(--text-secondary); font-size: 14.5px; margin-bottom: 24px; }
+.bottom-cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 28px; background: var(--accent); color: white;
+  border-radius: var(--radius-pill); font-weight: 600; font-size: 14px;
+  text-decoration: none; transition: all 0.3s;
+}
+.btn-primary:hover { background: var(--accent-hover); box-shadow: 0 4px 16px rgba(255,107,138,0.3); }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 28px; background: transparent; color: var(--text-primary);
+  border: 1.5px solid rgba(74, 48, 64, 0.15); border-radius: var(--radius-pill);
+  font-weight: 600; font-size: 14px; text-decoration: none; transition: all 0.3s; cursor: pointer;
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* FOOTER */
+.footer {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 24px 40px; border-top: 1px solid rgba(74, 48, 64, 0.06);
+  font-size: 13px; color: var(--text-muted); max-width: 1324px; margin: 0 auto;
+}
+.footer a { color: var(--text-secondary); text-decoration: none; margin-left: 20px; }
+.footer a:hover { color: var(--accent); }
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  .page { padding: 100px 20px 60px; }
+  .page-title { font-size: 30px; }
+  .step { padding: 24px; }
+  .step-title { font-size: 18px; }
+  .nav-inner { padding: 0 20px; }
+  .bottom-cta { padding: 32px 20px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="index.html">
+      <img class="nav-logo-img" src="logo.png" alt="团子">
+      <span>团子</span>
+    </a>
+    <div class="nav-right">
+      <a class="nav-link" href="index.html">首页</a>
+      <a class="nav-link" href="index.html#features">功能</a>
+      <a class="nav-cta" href="https://github.com/Sanchez-77/molly-releases/releases/latest/download/molly-1.1.6.zip">下载</a>
+    </div>
+  </div>
+</nav>
+
+<main class="page">
+  <h1 class="page-title">安装指南</h1>
+  <p class="page-subtitle">只需四步，让团子出现在你的桌面上。</p>
+
+  <div class="video-wrap">
+    <video autoplay muted loop playsinline>
+      <source src="install/tutorial.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-number">1</div>
+        <h2 class="step-title">解压下载文件</h2>
+      </div>
+      <p class="step-desc">下载完成后，在「下载」文件夹中找到 <strong>molly-x.x.x.zip</strong>，双击解压得到 <strong>团子.app</strong>。</p>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-number">2</div>
+        <h2 class="step-title">拖入应用程序文件夹</h2>
+      </div>
+      <p class="step-desc">将 <strong>团子.app</strong> 拖到「应用程序」文件夹中。这样可以确保自动更新和系统权限正常工作。</p>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-number">3</div>
+        <h2 class="step-title">授权辅助功能</h2>
+      </div>
+      <p class="step-desc">首次打开时，团子会请求「辅助功能」权限。前往 <strong>系统设置 → 隐私与安全性 → 辅助功能</strong>，找到团子并开启开关。</p>
+      <div class="step-tip"><strong>为什么需要这个权限？</strong> 团子需要监听全局键盘事件来感知你是否在打字，以及读取 Dock 角标来提醒新消息。所有数据都在本地处理，不会上传。</div>
+    </div>
+
+    <div class="step">
+      <div class="step-header">
+        <div class="step-number">4</div>
+        <h2 class="step-title">打开团子</h2>
+      </div>
+      <p class="step-desc">由于没有 Apple 开发者签名，首次打开需要右键点击 团子.app → 选择「打开」→ 在弹窗中再次点击「打开」。之后就可以正常双击启动了。</p>
+      <div class="step-tip"><strong>提示：</strong> 如果看到「已损坏」的提示，打开终端输入 <code>xattr -rd com.apple.quarantine /Applications/团子.app</code> 然后回车即可。</div>
+    </div>
+
+  </div>
+
+  <div class="bottom-cta">
+    <h3>准备好了吗？</h3>
+    <p>下载团子，开始你的桌面伙伴之旅。</p>
+    <div class="bottom-cta-btns">
+      <a class="btn-primary" href="https://github.com/Sanchez-77/molly-releases/releases/latest/download/molly-1.1.6.zip">免费下载</a>
+      <a class="btn-ghost" href="index.html">返回首页</a>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div>Made with ❤️ and Claude</div>
+  <div>
+    <a href="https://github.com/Sanchez-77/molly-releases">GitHub</a>
+    <a href="#">反馈</a>
+  </div>
+</footer>
+
+</body>
+</html>
