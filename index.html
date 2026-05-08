@@ -645,34 +645,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const animSection = document.querySelector('.anims-scroll-wrap');
   if (animSection) animObs.observe(animSection);
 
-  // === Hero Canvas 序列帧动画 ===
+  // === Hero Canvas 动画 (VP9 Alpha WebM → Canvas) ===
   const heroCanvas = document.getElementById('heroCanvas');
   const ctx = heroCanvas.getContext('2d');
-  const FPS = 24;
-  const frameInterval = 1000 / FPS;
 
-  const anims = {
-    intro: { prefix: '网页探头', count: 49, frames: [] },
-    idle: { prefix: '网页待机', count: 81, frames: [] },
-    scratch: { prefix: '网页挠耳朵', count: 49, frames: [] },
-    grab: { prefix: '网页抓', count: 81, frames: [] },
-  };
-
-  function loadAnim(anim) {
-    return new Promise(resolve => {
-      let loaded = 0;
-      let resolved = false;
-      for (let i = 0; i < anim.count; i++) {
-        const img = new Image();
-        img.onload = img.onerror = () => {
-          loaded++;
-          if (!resolved && loaded >= 3) { resolved = true; resolve(); }
-        };
-        img.src = `frames/${anim.prefix}/${anim.prefix}_${i}.webp`;
-        anim.frames[i] = img;
-      }
-    });
+  function makeVideo(src) {
+    const v = document.createElement('video');
+    v.muted = true;
+    v.playsInline = true;
+    v.preload = 'auto';
+    v.src = src;
+    return v;
   }
+
+  const vids = {
+    intro: makeVideo('hero-intro.webm'),
+    idle: makeVideo('hero-idle.webm'),
+    scratch: makeVideo('hero-scratch.webm'),
+    grab: makeVideo('hero-grab.webm'),
+  };
 
   function sizeCanvas() {
     const wrap = heroCanvas.parentElement;
@@ -683,73 +674,51 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  let currentAnim = null;
-  let frameIndex = 0;
-  let lastFrameTime = 0;
-  let playing = false;
-  let onAnimEnd = null;
+  let activeVid = null;
+  let rafId = 0;
 
-  function drawFrame(timestamp) {
-    if (!playing) return;
-    if (timestamp - lastFrameTime < frameInterval) {
-      requestAnimationFrame(drawFrame);
-      return;
+  function render() {
+    if (activeVid && activeVid.readyState >= 2) {
+      const wrap = heroCanvas.parentElement.getBoundingClientRect();
+      ctx.clearRect(0, 0, wrap.width, wrap.height);
+      ctx.drawImage(activeVid, 0, 0, wrap.width, wrap.height);
     }
-    lastFrameTime = timestamp;
-
-    const anim = currentAnim;
-    if (!anim) return;
-    if (!anim.frames[frameIndex] || !anim.frames[frameIndex].complete || !anim.frames[frameIndex].naturalWidth) {
-      requestAnimationFrame(drawFrame);
-      return;
-    }
-
-    const wrap = heroCanvas.parentElement.getBoundingClientRect();
-    ctx.clearRect(0, 0, wrap.width, wrap.height);
-    ctx.drawImage(anim.frames[frameIndex], 0, 0, wrap.width, wrap.height);
-
-    frameIndex++;
-    if (frameIndex >= anim.count) {
-      if (onAnimEnd) { onAnimEnd(); return; }
-      frameIndex = 0; // loop
-    }
-    requestAnimationFrame(drawFrame);
+    rafId = requestAnimationFrame(render);
   }
 
-  function playAnim(anim, loop, callback) {
-    currentAnim = anim;
-    frameIndex = 0;
-    playing = true;
-    onAnimEnd = loop ? null : callback;
-    if (loop) onAnimEnd = null;
-    requestAnimationFrame(drawFrame);
+  function play(video, loop, onEnd) {
+    if (activeVid && activeVid !== video) {
+      activeVid.pause();
+    }
+    activeVid = video;
+    video.loop = loop;
+    video.currentTime = 0;
+    video.onended = (!loop && onEnd) ? onEnd : null;
+    video.play().catch(() => {});
   }
 
   function startIdleWithRandom() {
-    playAnim(anims.idle, true, null);
+    play(vids.idle, true);
     scheduleRandom();
   }
 
   function scheduleRandom() {
-    const delay = 6000 + Math.random() * 10000;
+    const delay = 3000 + Math.random() * 4000;
     setTimeout(() => {
-      if (!playing) return;
-      const picks = [anims.scratch, anims.grab];
-      const pick = picks[Math.floor(Math.random() * picks.length)];
-      playAnim(pick, false, () => { startIdleWithRandom(); });
+      if (!activeVid) return;
+      const pick = [vids.scratch, vids.grab][Math.random() < 0.5 ? 0 : 1];
+      play(pick, false, startIdleWithRandom);
     }, delay);
   }
 
-  // Boot: load intro + idle first, then start
   sizeCanvas();
   window.addEventListener('resize', sizeCanvas);
+  rafId = requestAnimationFrame(render);
 
-  Promise.all([loadAnim(anims.intro), loadAnim(anims.idle)]).then(() => {
-    playAnim(anims.intro, false, () => { startIdleWithRandom(); });
-  });
-  // Preload random anims in background
-  loadAnim(anims.scratch);
-  loadAnim(anims.grab);
+  vids.intro.addEventListener('canplay', () => {
+    play(vids.intro, false, startIdleWithRandom);
+  }, { once: true });
+  setTimeout(() => { if (!activeVid) play(vids.intro, false, startIdleWithRandom); }, 2000);
 });
 </script>
 </body>
